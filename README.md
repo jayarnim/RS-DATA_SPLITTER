@@ -1,7 +1,6 @@
-# RS-Data_Splitter
+# Implicit Feedback Data Splitter
 
 - data splitter
-    - `explicit`
     - `pointwise`: pointwise negative sampling data splitter for implict feedback
     - `pairwise`: pairwise negative sampling data splitter for implict feedback
     - `listwise`: listwise negative sampling data splitter for implict feedback
