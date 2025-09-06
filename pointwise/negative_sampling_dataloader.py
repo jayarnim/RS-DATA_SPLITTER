@@ -25,25 +25,21 @@ class PointwiseNegativeSamplingDataset(Dataset):
 
         zip_obj = zip(origin[self.col_user], origin[self.col_item])
         self.user_item_pairs = list(zip_obj)
+        self.total_samples = len(self.user_item_pairs) * (1 + self.neg_per_pos)
 
     def __len__(self):
-        return len(self.user_item_pairs)
+        return self.total_samples
 
     def __getitem__(self, idx):
-        user, pos = self.user_item_pairs[idx]
-        
-        # negative sampling
-        kwargs = dict(
-            population=self.neg_items_per_user[user],
-            k=self.neg_per_pos,     
-        )
-        neg_list = random.sample(**kwargs)
+        decision = (idx % (1 + self.neg_per_pos) == 0)
 
-        user_list = [user] * (1 + self.neg_per_pos)
-        item_list = [pos] + neg_list
-        label_list = [1] + [0] * self.neg_per_pos
-
-        return user_list, item_list, label_list
+        if decision == True:
+            user, pos = self.user_item_pairs[idx // (1 + self.neg_per_pos)]
+            return user, pos, 1
+        else:
+            user, _ = self.user_item_pairs[idx // (1 + self.neg_per_pos)]
+            neg = random.choice(self.neg_items_per_user[user])
+            return user, neg, 0
 
 
 class PointwiseNegativeSamplingDataLoader:
@@ -111,28 +107,10 @@ class PointwiseNegativeSamplingDataLoader:
         return neg_items_per_user
 
     def _collate(self, batch):
-        # batch: ([(u1),(i1*),(y1*)],[(u2),(i2*),(y2*)],...)
-        # user_list: [(u1,u1,u1),(u2,u2,u2),...]
-        # item_list: [(i11,i12,i13),(i21,i22,i23),...]
-        # label_list: [(y11,y12,y13),(y21,y22,y23),...]
         user_list, item_list, label_list = zip(*batch)
-
-        # [(u1,u1,u1),(u2,u2,u2),...] -> [u1,u1,u1,u2,u2,u2,...]
-        user_batch = torch.tensor(
-            list(itertools.chain.from_iterable(user_list)), 
-            dtype=torch.long
-        )
-
-        # [(i11,i12,i13),(i21,i22,i23),...] -> [i11,i12,i13,i21,i22,i23,...]
-        item_batch = torch.tensor(
-            list(itertools.chain.from_iterable(item_list)), 
-            dtype=torch.long
-        )
-
-        # [(y11,y12,y13),(y21,y22,y23),...] -> [y11,y12,y13,y21,y22,y23,...]
-        label_batch = torch.tensor(
-            list(itertools.chain.from_iterable(label_list)),
-            dtype=torch.float32
-        )
+        
+        user_batch = torch.tensor(user_list, dtype=torch.long)
+        item_batch = torch.tensor(item_list, dtype=torch.long)
+        label_batch = torch.tensor(label_list, dtype=torch.float32)
         
         return user_batch, item_batch, label_batch

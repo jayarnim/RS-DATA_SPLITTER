@@ -111,13 +111,8 @@ class PairwiseNegativeSamplingDataLoader:
         return neg_items_per_user
 
     def _collate(self, batch):
-        # batch: [(u1,pos11,neg11),(u2,pos21,neg21),...]
-        # user_list: [u1,u2,...]
-        # pos_list: [pos11,pos21,...]
-        # neg_list: [neg11,neg21,...]
         user_list, pos_list, neg_list = zip(*batch)
 
-        # list -> tensor
         user_batch = torch.tensor(user_list, dtype=torch.long)
         pos_batch = torch.tensor(pos_list, dtype=torch.long)
         neg_batch = torch.tensor(neg_list, dtype=torch.long)
