@@ -12,7 +12,7 @@ from ..utils.constants import (
 class PairwiseNegativeSamplingDataset(Dataset):
     def __init__(
         self, 
-        origin: pd.DataFrame, 
+        data: pd.DataFrame, 
         neg_items_per_user: dict,
         neg_per_pos: int,
         col_user: str=DEFAULT_USER_COL,
@@ -23,7 +23,7 @@ class PairwiseNegativeSamplingDataset(Dataset):
         self.col_user = col_user
         self.col_item = col_item
 
-        zip_obj = zip(origin[self.col_user], origin[self.col_item])
+        zip_obj = zip(data[self.col_user], data[self.col_item])
         self.user_item_pairs = list(zip_obj)
 
     def __len__(self):

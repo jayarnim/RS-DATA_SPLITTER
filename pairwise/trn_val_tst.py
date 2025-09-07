@@ -96,7 +96,7 @@ class Module:
 
         # generate histories per user: {user: List}
         kwargs = dict(
-            data=user_item_binary_matrix_np,
+            user_item_binary_matrix=user_item_binary_matrix_np,
             max_hist=max_hist,
             hist_padding=hist_padding,
         )
