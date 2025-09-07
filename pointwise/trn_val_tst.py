@@ -2,7 +2,6 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import torch
-from torch.nn.utils.rnn import pad_sequence
 from sklearn.feature_extraction.text import TfidfTransformer
 from ..utils.constants import (
     DEFAULT_USER_COL,
@@ -53,7 +52,6 @@ class Module:
         neg_per_pos: list=[4, 4, 100, 100],
         batch_size: list=[32, 32, 1, 1],
         max_hist: Optional[int]=None,
-        hist_padding: bool=True,
         shuffle: bool=True,
         seed: int=42,
     ):
@@ -89,7 +87,6 @@ class Module:
         kwargs = dict(
             user_item_binary_matrix=user_item_binary_matrix_np,
             max_hist=max_hist,
-            hist_padding=hist_padding,
         )
         histories = self._histories(**kwargs)
 
@@ -117,11 +114,10 @@ class Module:
         self, 
         user_item_binary_matrix: np.ndarray, 
         max_hist: Optional[int]=None,
-        hist_padding: bool=True,
     ):
         tfidf_dict = self._tfidf(user_item_binary_matrix) if max_hist is not None else None
 
-        pos_per_user = []
+        pos_per_user_list = []
 
         for user in range(self.n_users):
             # search interacted item ids
@@ -159,17 +155,15 @@ class Module:
                     topk_vals, topk_indices = torch.topk(**kwargs)
                     item_ids = item_ids[topk_indices]
 
-            pos_per_user.append(item_ids)
+            pos_per_user_list.append(item_ids)
 
-        if hist_padding == True:
-            kwargs = dict(
-                sequences=pos_per_user,
-                batch_first=True,
-                padding_value=self.n_items,
-            )
-            pos_per_user = pad_sequence(**kwargs)
+        kwargs = dict(
+            object=pos_per_user_list,
+            dtype=object,
+        )
+        pos_per_user_np = np.array(**kwargs)
 
-        return pos_per_user
+        return pos_per_user_np
 
     def _tfidf(
         self, 
