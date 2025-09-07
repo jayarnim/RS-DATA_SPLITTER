@@ -40,11 +40,10 @@ class PointwiseCurriculumDataLoader:
         )
 
         # user idx sorted by len(hist)
-        kwargs = dict(
-            iterable=user2histlen, 
+        sorted_users = sorted(
+            user2histlen,
             key=user2histlen.get,
         )
-        sorted_users = sorted(**kwargs)
 
         # df per user sorted by hist
         sorted_df_per_user_list = [
