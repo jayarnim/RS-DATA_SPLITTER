@@ -57,38 +57,13 @@ class Module:
         shuffle: bool=True,
         seed: int=42,
     ):
-        # for leave one out data set
-        loo = (
-            self.origin
-            .groupby(self.col_user)
-            .sample(n=1, random_state=seed)
-            .sort_values(by=self.col_user)
-            .reset_index(drop=True)
-        )
-
-        # for trn, val, tst data set
-        trn_val_tst = (
-            self.origin[~self.origin[[self.col_user, self.col_item]]
-            .apply(tuple, axis=1)
-            .isin(set(loo[[self.col_user, self.col_item]]
-            .apply(tuple, axis=1)))]
-            .reset_index(drop=True)
-        )
-
-        # trn_val_tst -> [trn, val, tst]
+        # split original data
         kwargs = dict(
-            data=trn_val_tst,
             filter_by=filter_by,
-            ratio=trn_val_tst_ratio,
-            col_user=self.col_user,
-            col_item=self.col_item,
+            trn_val_tst_ratio=trn_val_tst_ratio,
             seed=seed,
         )
-        trn, val, tst = python_stratified_split(**kwargs)
-        split_list = [trn, val, tst]
-
-        # [trn, val, tst, loo]
-        split_list.append(loo)
+        split_list = self._split(**kwargs)
 
         # generate data loaders
         loaders = []
@@ -214,3 +189,40 @@ class Module:
             tfidf_dict[(row, col)] = tfidf_matrix[row, col]
 
         return tfidf_dict
+
+    def _split(
+        self,
+        filter_by: FILTER_BY,
+        trn_val_tst_ratio: list,
+        seed: int,
+    ):
+        # for leave one out data set
+        loo = (
+            self.origin
+            .groupby(self.col_user)
+            .sample(n=1, random_state=seed)
+            .sort_values(by=self.col_user)
+            .reset_index(drop=True)
+        )
+
+        # for trn, val, tst data set
+        trn_val_tst = (
+            self.origin[~self.origin[[self.col_user, self.col_item]]
+            .apply(tuple, axis=1)
+            .isin(set(loo[[self.col_user, self.col_item]]
+            .apply(tuple, axis=1)))]
+            .reset_index(drop=True)
+        )
+
+        # trn_val_tst -> [trn, val, tst]
+        kwargs = dict(
+            data=trn_val_tst,
+            filter_by=filter_by,
+            ratio=trn_val_tst_ratio,
+            col_user=self.col_user,
+            col_item=self.col_item,
+            seed=seed,
+        )
+        trn, val, tst = python_stratified_split(**kwargs)
+
+        return trn, val, tst, loo
