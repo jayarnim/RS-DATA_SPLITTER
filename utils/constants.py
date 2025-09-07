@@ -1,6 +1,5 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
-from typing import Literal
 
 # Default column names
 DEFAULT_USER_COL = "userId"
@@ -22,5 +21,9 @@ DEFAULT_THRESHOLD = 10
 
 # Other
 SEED = 42
+
+from typing import Literal
+
+# Customized
 LOADING_TYPE = Literal["general", "curriculum", "userpair"]
 FILTER_BY = Literal["user", "item"]
