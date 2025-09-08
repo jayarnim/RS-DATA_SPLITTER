@@ -25,5 +25,5 @@ SEED = 42
 from typing import Literal
 
 # Customized
-LOADING_TYPE = Literal["general", "curriculum", "userpair"]
+LOADING_TYPE = Literal["general", "curriculum", "userpair", "phase"]
 FILTER_BY = Literal["user", "item"]

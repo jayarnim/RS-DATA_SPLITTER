@@ -16,6 +16,8 @@ from .curriculum_dataloader import PairwiseCurriculumDataLoader
 from ..pointwise.curriculum_dataloader import PointwiseCurriculumDataLoader
 from .userpair_dataloader import PairwiseUserpairDataLoader
 from ..pointwise.userpair_dataloader import PointwiseUserpairDataLoader
+from .phase_dataloader import PairwisePhaseDataLoader
+from ..pointwise.phase_dataloader import PointwisePhaseDataLoader
 
 
 class DataSplitter:
@@ -24,6 +26,7 @@ class DataSplitter:
         origin: pd.DataFrame,
         n_users: int, 
         n_items: int,
+        n_phases: Optional[int]=None,
         col_user: str=DEFAULT_USER_COL, 
         col_item: str=DEFAULT_ITEM_COL,
         loading_type: LOADING_TYPE="general",
@@ -31,6 +34,7 @@ class DataSplitter:
         self.origin = origin
         self.n_users = n_users
         self.n_items = n_items
+        self.n_phases = n_phases
         self.col_user = col_user
         self.col_item = col_item
 
@@ -48,6 +52,9 @@ class DataSplitter:
         elif loading_type=="userpair":
             self.pairwise = PairwiseUserpairDataLoader(**kwargs)
             self.pointwise = PointwiseUserpairDataLoader(**kwargs)
+        elif loading_type=="phase":
+            self.pairwise = PairwisePhaseDataLoader(**kwargs, n_phases=self.n_phases)
+            self.pointwise = PointwisePhaseDataLoader(**kwargs, n_phases=self.n_phases)
         else:
             raise TypeError(f"Invalid loading_type: {loading_type}")
 

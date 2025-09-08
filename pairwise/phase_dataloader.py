@@ -18,16 +18,18 @@ class DataLoaderCombination:
         return sum(len(dataloader) for dataloader in self.dataloader_list)
 
 
-class PairwiseUserpairDataLoader:
+class PairwisePhaseDataLoader:
     def __init__(
         self,
         origin,
         col_user=DEFAULT_USER_COL,
         col_item=DEFAULT_ITEM_COL,
+        n_phases=10,
     ):
         self.origin = origin
         self.col_user = col_user
         self.col_item = col_item
+        self.n_phases = n_phases
 
         kwargs = dict(
             origin=self.origin,
@@ -41,7 +43,7 @@ class PairwiseUserpairDataLoader:
         data: pd.DataFrame, 
         neg_per_pos: int,
         batch_size: int,
-        shuffle: bool=False,
+        shuffle: bool=True,
     ):
         # dict: {u_idx: len(hist)}
         user2histlen = (
@@ -57,20 +59,32 @@ class PairwiseUserpairDataLoader:
             key=user2histlen.get,
         )
 
+        # generate phases
+        n_total = len(sorted_users)
+
+        phase_user_list = []
+
+        for i in range(self.n_phases):
+            start = (i * n_total) // self.n_phases
+            end = ((i + 1) * n_total) // self.n_phases
+            phase_user = set(sorted_users[start:end])
+            phase_user_list.append(phase_user)
+
         # df per user sorted by hist
-        sorted_df_per_user_list = [
-            data[data[self.col_user] == user]
-            for user in sorted_users
+        sorted_df_per_phase_list = [
+            data[data[self.col_user].isin(phase)]
+            for phase in phase_user_list
+            if not phase.empty
         ]
 
         user_dataloader_list = [
             self.dataloader.get(
-                data=sorted_df_per_user, 
+                data=sorted_df_per_phase, 
                 neg_per_pos=neg_per_pos, 
                 batch_size=batch_size, 
                 shuffle=shuffle,
             )
-            for sorted_df_per_user in sorted_df_per_user_list
+            for sorted_df_per_phase in sorted_df_per_phase_list
         ]
 
         return DataLoaderCombination(user_dataloader_list)
