@@ -3,10 +3,10 @@ from ..utils.constants import (
     DEFAULT_USER_COL,
     DEFAULT_ITEM_COL,
 )
-from .negative_sampling_dataloader import PairwiseNegativeSamplingDataLoader
+from .negative_sampling_dataloader import NegativeSamplingDataLoader
 
 
-class PairwiseCurriculumDataLoader:
+class CurriculumDataLoader:
     def __init__(
         self,
         origin,
@@ -22,7 +22,7 @@ class PairwiseCurriculumDataLoader:
             col_user=self.col_user,
             col_item=self.col_item,
         )
-        self.dataloader = PairwiseNegativeSamplingDataLoader(**kwargs)
+        self.dataloader = NegativeSamplingDataLoader(**kwargs)
 
     def get(
         self, 

@@ -15,7 +15,7 @@ from .curriculum_dataloader import PointwiseCurriculumDataLoader
 from .userpair_dataloader import PointwiseUserpairDataLoader
 
 
-class Module:
+class DataSplitter:
     def __init__(
         self, 
         origin: pd.DataFrame,

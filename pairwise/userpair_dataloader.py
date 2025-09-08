@@ -4,7 +4,7 @@ from ..utils.constants import (
     DEFAULT_USER_COL,
     DEFAULT_ITEM_COL,
 )
-from .negative_sampling_dataloader import PairwiseNegativeSamplingDataLoader
+from .negative_sampling_dataloader import NegativeSamplingDataLoader
 
 
 class DataLoaderCombination:
@@ -18,7 +18,7 @@ class DataLoaderCombination:
         return sum(len(dataloader) for dataloader in self.dataloader_list)
 
 
-class PairwiseUserpairDataLoader:
+class UserpairDataLoader:
     def __init__(
         self,
         origin,
@@ -34,7 +34,7 @@ class PairwiseUserpairDataLoader:
             col_user=self.col_user,
             col_item=self.col_item,
         )
-        self.dataloader = PairwiseNegativeSamplingDataLoader(**kwargs)
+        self.dataloader = NegativeSamplingDataLoader(**kwargs)
 
     def get(
         self, 

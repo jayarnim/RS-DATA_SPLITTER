@@ -9,7 +9,7 @@ from ..utils.constants import (
 )
 
 
-class PairwiseNegativeSamplingDataset(Dataset):
+class NegativeSamplingDataset(Dataset):
     def __init__(
         self, 
         data: pd.DataFrame, 
@@ -42,7 +42,7 @@ class PairwiseNegativeSamplingDataset(Dataset):
         return user, pos, neg
 
 
-class PairwiseNegativeSamplingDataLoader:
+class NegativeSamplingDataLoader:
     def __init__(
         self,
         origin: pd.DataFrame,
@@ -77,7 +77,7 @@ class PairwiseNegativeSamplingDataLoader:
             col_user=self.col_user, 
             col_item=self.col_item,     
         )
-        dataset = PairwiseNegativeSamplingDataset(**kwargs)
+        dataset = NegativeSamplingDataset(**kwargs)
 
         kwargs = dict(
             dataset=dataset, 
