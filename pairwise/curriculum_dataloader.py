@@ -31,6 +31,10 @@ class PairwiseCurriculumDataLoader:
         batch_size: int,
         shuffle: bool=False,
     ):
+        CONDITION = shuffle==True
+        ERROR_MESSAGE = "if use curriculum dataloader, shuffle must be False"
+        assert CONDITION, ERROR_MESSAGE
+
         # dict: {u_idx: len(hist)}
         user2histlen = (
             self.origin

@@ -72,9 +72,9 @@ class PairwisePhaseDataLoader:
 
         # df per user sorted by hist
         sorted_df_per_phase_list = [
-            data[data[self.col_user].isin(phase)]
-            for phase in phase_user_list
-            if not phase.empty
+            df for phase in phase_user_list
+            for df in [data[data[self.col_user].isin(phase)]]
+            if len(phase) > 0 and not df.empty
         ]
 
         user_dataloader_list = [
