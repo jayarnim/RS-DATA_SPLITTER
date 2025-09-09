@@ -31,7 +31,7 @@ class PairwiseCurriculumDataLoader:
         batch_size: int,
         shuffle: bool=False,
     ):
-        CONDITION = shuffle==True
+        CONDITION = shuffle==False
         ERROR_MESSAGE = "if use curriculum dataloader, shuffle must be False"
         assert CONDITION, ERROR_MESSAGE
 
