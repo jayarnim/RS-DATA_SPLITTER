@@ -1,4 +1,4 @@
-# Recommendation Model Training Module
+# Training Module for Latent Factor Models with Implicit Feedback
 
 - data splitter
     - `pointwise`: pointwise negative sampling data splitter for implict feedback
