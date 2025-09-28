@@ -37,7 +37,7 @@ class PointwiseNegativeSamplingDataset(Dataset):
             return user, pos, 1
         else:
             user, _ = self.user_item_pairs[idx // (1 + self.neg_per_pos)]
-            neg = random.choice(self.neg_items_per_user[user])
+            neg = random.choice(self.neg_per_user[user])
             return user, neg, 0
 
 
@@ -67,7 +67,7 @@ class PointwiseNegativeSamplingDataLoader:
     ):
         kwargs = dict(
             data=data, 
-            neg_items_per_user=self.neg_per_user,
+            neg_per_user=self.neg_per_user,
             neg_per_pos=neg_per_pos,
             col_user=self.col_user, 
             col_item=self.col_item,     

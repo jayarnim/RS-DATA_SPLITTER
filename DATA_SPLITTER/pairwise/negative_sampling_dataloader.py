@@ -61,7 +61,7 @@ class PairwiseNegativeSamplingDataLoader:
     ):
         kwargs = dict(
             data=data, 
-            neg_items_per_user=self.neg_per_user,
+            neg_per_user=self.neg_per_user,
             neg_per_pos=neg_per_pos,
             col_user=self.col_user, 
             col_item=self.col_item,     
