@@ -13,6 +13,9 @@ def selector(
     for r, c in zip(rows.tolist(), cols.tolist()):
         hist_indices[r].append(c)
 
-    hist_indices = [indices.to(torch.long) for indices in hist_indices]
+    hist_indices = [
+        torch.tensor(indices, dtype=torch.long)
+        for indices in hist_indices
+    ]
 
     return hist_indices
