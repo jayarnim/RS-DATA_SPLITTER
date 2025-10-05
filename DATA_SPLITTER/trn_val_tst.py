@@ -47,7 +47,7 @@ class TRN_VAL_TST:
             neg_per_pos_ratio=neg_per_pos_ratio,
             batch_size=batch_size,
         )
-        self._get_param_error(**kwargs)
+        self._assert_arg_error(**kwargs)
 
         # split original data
         kwargs = dict(
@@ -63,7 +63,7 @@ class TRN_VAL_TST:
         for split_type in ["trn", "val", "tst", "loo"]:
             kwargs = dict(
                 origin=origin,
-                data=split_dict[split_type], 
+                split=split_dict[split_type], 
                 neg_per_pos_ratio=neg_per_pos_ratio[split_type], 
                 batch_size=batch_size[split_type], 
                 shuffle=shuffle,
@@ -87,14 +87,14 @@ class TRN_VAL_TST:
 
         # generate histories
         kwargs = dict(
-            user_item_matrix=user_item_matrix,
+            interactions=user_item_matrix,
             hist_selector_type=hist_selector_type,
             max_hist=max_hist,
         )
         user_hist = self._histories_generator(**kwargs)
 
         kwargs = dict(
-            user_item_matrix=user_item_matrix.T,
+            interactions=user_item_matrix.T,
             hist_selector_type=hist_selector_type,
             max_hist=max_hist,
         )
@@ -215,7 +215,7 @@ class TRN_VAL_TST:
 
         return split_dict
 
-    def _get_param_error(self, trn_val_tst_ratio, neg_per_pos_ratio, batch_size):
+    def _assert_arg_error(self, trn_val_tst_ratio, neg_per_pos_ratio, batch_size):
         CONDITION = (list(trn_val_tst_ratio.keys()) == ["trn", "val", "tst"])
         ERROR_MESSAGE = f"key of trn_val_tst_ratio must be ['trn', 'val', 'tst'], but: {list(trn_val_tst_ratio.keys())}"
         assert CONDITION, ERROR_MESSAGE

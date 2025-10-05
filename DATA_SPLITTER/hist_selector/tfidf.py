@@ -7,7 +7,7 @@ def selector(
     max_hist: int,
 ):
     # padding idx
-    n_target, n_counterpart = interactions
+    n_target, n_counterpart = interactions.shape
 
     # compute tfidf
     tfidf = TfidfTransformer(norm=None)

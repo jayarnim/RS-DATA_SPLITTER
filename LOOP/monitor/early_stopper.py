@@ -15,7 +15,7 @@ class EarlyStopper:
         current_epoch,
         current_model_state,
     ):
-        if current_score > self.best_score + self.min_delta:
+        if current_score > self._best_score + self.min_delta:
             self._best_score = current_score
             self._best_epoch = current_epoch + 1
             self._best_model_state = current_model_state
