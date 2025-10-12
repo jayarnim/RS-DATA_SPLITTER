@@ -46,7 +46,7 @@ class EarlyStoppingPredictor:
 
         iter_obj = tqdm(
             iterable=loo_loader, 
-            desc=f"Epoch {epoch+1}/{n_epochs} LEAVE ONE OUT",
+            desc=f"Epoch {epoch+1}/{n_epochs} LOO",
         )
 
         for user_idx, item_idx, label in iter_obj:

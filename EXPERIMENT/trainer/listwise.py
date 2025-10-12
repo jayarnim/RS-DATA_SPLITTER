@@ -57,7 +57,7 @@ class CustomizedTrainer:
             epoch=epoch,
             n_epochs=n_epochs,
         )
-        trn_task_loss, computing_cost = self._epoch_trn_step(**kwargs)
+        trn_loss, computing_cost = self._epoch_trn_step(**kwargs)
 
         kwargs = dict(
             dataloader=val_loader,
@@ -66,7 +66,7 @@ class CustomizedTrainer:
         )
         val_task_loss = self._epoch_val_step(**kwargs)
 
-        return trn_task_loss, val_task_loss, computing_cost
+        return trn_loss, val_task_loss, computing_cost
 
     def _epoch_trn_step(
         self,
@@ -76,7 +76,7 @@ class CustomizedTrainer:
     ):
         self.model.train()
 
-        epoch_task_loss = 0.0
+        epoch_loss = 0.0
         epoch_computing_cost = []
 
         iter_obj = tqdm(
@@ -97,19 +97,19 @@ class CustomizedTrainer:
 
             # forward pass
             with autocast(self.device.type):
-                batch_task_loss = self._batch_step(**kwargs)
+                batch_loss = self._batch_step(**kwargs)
 
             # backward pass
-            self._run_fn_opt(batch_task_loss)
+            self._run_fn_opt(batch_loss)
 
             # calculate computing cost
             batch_computing_cost = perf_counter() - t0
 
             # accumulate loss
-            epoch_task_loss += batch_task_loss.item()
+            epoch_loss += batch_loss.item()
             epoch_computing_cost.append(batch_computing_cost)
 
-        return epoch_task_loss / len(dataloader), epoch_computing_cost
+        return epoch_loss / len(dataloader), epoch_computing_cost
 
     @torch.no_grad()
     def _epoch_val_step(        
@@ -120,7 +120,7 @@ class CustomizedTrainer:
     ):
         self.model.eval()
 
-        epoch_task_loss = 0.0
+        epoch_loss = 0.0
 
         iter_obj = tqdm(
             iterable=dataloader, 
@@ -137,12 +137,12 @@ class CustomizedTrainer:
 
             # forward pass
             with autocast(self.device.type):
-                batch_task_loss = self._batch_step(**kwargs)
+                batch_loss = self._batch_step(**kwargs)
 
             # accumulate loss
-            epoch_task_loss += batch_task_loss.item()
+            epoch_loss += batch_loss.item()
 
-        return epoch_task_loss / len(dataloader)
+        return epoch_loss / len(dataloader)
 
     def _batch_step(self, user_idx, pos_idx, neg_idx):
         pos_logit = self.model(user_idx, pos_idx)
@@ -151,9 +151,9 @@ class CustomizedTrainer:
         neg_logit_flat = self.model(user_idx_exp.reshape(-1), neg_idx.reshape(-1))
         neg_logit = neg_logit_flat.view(*neg_idx.shape)
         
-        batch_task_loss = self.task_fn(pos_logit, neg_logit)
+        loss = self.task_fn(pos_logit, neg_logit)
         
-        return batch_task_loss
+        return loss
 
     def _run_fn_opt(self, loss):
         self.optimizer.zero_grad()

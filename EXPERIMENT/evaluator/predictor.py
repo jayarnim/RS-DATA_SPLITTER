@@ -8,7 +8,7 @@ import torch.nn as nn
 from ..utils.constants import (
     DEFAULT_USER_COL,
     DEFAULT_ITEM_COL,
-    DEFAULT_LABEL_COL,
+    DEFAULT_RATING_COL,
     DEFAULT_PREDICTION_COL,
 )
 from DATA_SPLITTER.dataloader.pointwise import CustomizedDataLoader
@@ -20,7 +20,7 @@ class PerformancePredictor:
         model: nn.Module, 
         col_user: str=DEFAULT_USER_COL,
         col_item: str=DEFAULT_ITEM_COL,
-        col_label: str=DEFAULT_LABEL_COL,
+        col_rating: str=DEFAULT_RATING_COL,
         col_prediction: str=DEFAULT_PREDICTION_COL,
     ):
         DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -29,7 +29,7 @@ class PerformancePredictor:
         self.model = model.to(self.device)
         self.col_user = col_user
         self.col_item = col_item
-        self.col_label= col_label
+        self.col_rating= col_rating
         self.col_prediction = col_prediction
 
     @torch.no_grad()
@@ -80,7 +80,7 @@ class PerformancePredictor:
             {
                 self.col_user: user_idx_list,
                 self.col_item: item_idx_list,
-                self.col_label: label_list,
+                self.col_rating: label_list,
                 self.col_prediction: pred_list,
             }
         )

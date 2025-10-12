@@ -145,7 +145,7 @@ class Runner:
     def _run_monitor(self, loo_loader, epoch, n_epochs, warm_up, interval):
         if ((epoch+1) > warm_up) and ((epoch+1) % interval == 0):
             kwargs = dict(
-                dataloader=loo_loader, 
+                loo_loader=loo_loader, 
                 epoch=epoch,
                 n_epochs=n_epochs,
             )
