@@ -6,30 +6,49 @@ import torch.optim as optim
 from torch.amp import GradScaler, autocast
 from ..utils.constants import LOSS_FN_TYPE_LISTWISE
 from ..loss_fn import listwise
+from DATA_SPLITTER.dataloader.listwise import CustomizedDataLoader
 
 
-class PairwiseTrainer:
+class CustomizedTrainer:
     def __init__(
         self,
         model: nn.Module,
-        task_fn_type: LOSS_FN_TYPE_LISTWISE="climf",
+        loss_fn_type: LOSS_FN_TYPE_LISTWISE="climf",
         lr: float=1e-4, 
-        lambda_: float=1e-3, 
+        weight_decay: float=1e-3, 
     ):
+        """
+        Listwise Learning Single Epoch Trainer for Latent Factor Model
+        -----
+        created by @jayarnim
+
+        Args:
+            model (nn.Module):
+                latent factor model instance.
+            loss_fn_type (str):
+                listwise loss functions currently supported are: `climf`.
+            lr (float):
+                learning rate of optimizer `adam`.
+            weight_decay (float):
+                L2 regularization strength of optimizer `adam`.
+        """
+        # device setting
         DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
         self.device = torch.device(DEVICE)
 
+        # global attr
         self.model = model.to(self.device)
-        self.task_fn_type = task_fn_type
+        self.loss_fn_type = loss_fn_type
         self.lr = lr
-        self.lambda_ = lambda_
+        self.weight_decay = weight_decay
         
+        # set up components, loss function, optimizer, etc.
         self._set_up_components()
 
-    def fit(
+    def __call__(
         self, 
-        trn_loader: torch.utils.data.dataloader.DataLoader, 
-        val_loader: torch.utils.data.dataloader.DataLoader, 
+        trn_loader: CustomizedDataLoader, 
+        val_loader: CustomizedDataLoader, 
         epoch: int,
         n_epochs: int,
     ):
@@ -92,6 +111,7 @@ class PairwiseTrainer:
 
         return epoch_task_loss / len(dataloader), epoch_computing_cost
 
+    @torch.no_grad()
     def _epoch_val_step(        
         self,
         dataloader: torch.utils.data.dataloader.DataLoader,
@@ -107,30 +127,32 @@ class PairwiseTrainer:
             desc=f"Epoch {epoch+1}/{n_epochs} VAL"
         )
 
-        with torch.no_grad():
-            for user_idx, pos_idx, neg_idx in iter_obj:
-                # to gpu
-                kwargs = dict(
-                    user_idx=user_idx.to(self.device),
-                    pos_idx=pos_idx.to(self.device), 
-                    neg_idx=neg_idx.to(self.device),
-                )
+        for user_idx, pos_idx, neg_idx in iter_obj:
+            # to gpu
+            kwargs = dict(
+                user_idx=user_idx.to(self.device),
+                pos_idx=pos_idx.to(self.device), 
+                neg_idx=neg_idx.to(self.device),
+            )
 
-                # forward pass
-                with autocast(self.device.type):
-                    batch_task_loss = self._batch_step(**kwargs)
+            # forward pass
+            with autocast(self.device.type):
+                batch_task_loss = self._batch_step(**kwargs)
 
-                # accumulate loss
-                epoch_task_loss += batch_task_loss.item()
+            # accumulate loss
+            epoch_task_loss += batch_task_loss.item()
 
         return epoch_task_loss / len(dataloader)
 
     def _batch_step(self, user_idx, pos_idx, neg_idx):
         pos_logit = self.model(user_idx, pos_idx)
+        
         user_idx_exp = user_idx.unsqueeze(1).expand_as(neg_idx)
-        neg_logit = self.model(user_idx_exp.reshape(-1), neg_idx.reshape(-1))
-        neg_logit = neg_logit.view(*neg_idx.shape)
+        neg_logit_flat = self.model(user_idx_exp.reshape(-1), neg_idx.reshape(-1))
+        neg_logit = neg_logit_flat.view(*neg_idx.shape)
+        
         batch_task_loss = self.task_fn(pos_logit, neg_logit)
+        
         return batch_task_loss
 
     def _run_fn_opt(self, loss):
@@ -145,16 +167,16 @@ class PairwiseTrainer:
         self._init_scaler()
 
     def _init_task_fn(self):
-        if self.task_fn_type=="climf":
+        if self.loss_fn_type=="climf":
             self.task_fn = listwise.climf
         else:
-            raise ValueError(f"Invalid task_fn_type: {self.task_fn_type}")
+            raise ValueError(f"Invalid loss_fn_type: {self.loss_fn_type}")
 
     def _init_optimizer(self):
         kwargs = dict(
             params=self.model.parameters(), 
             lr=self.lr, 
-            weight_decay=self.lambda_,
+            weight_decay=self.weight_decay,
         )
         self.optimizer = optim.Adam(**kwargs)
 

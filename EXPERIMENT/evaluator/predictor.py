@@ -4,24 +4,25 @@ from time import perf_counter
 from statistics import mean
 import pandas as pd
 import torch
+import torch.nn as nn
 from ..utils.constants import (
     DEFAULT_USER_COL,
     DEFAULT_ITEM_COL,
     DEFAULT_LABEL_COL,
     DEFAULT_PREDICTION_COL,
 )
+from DATA_SPLITTER.dataloader.pointwise import CustomizedDataLoader
 
 
 class PerformancePredictor:
     def __init__(
         self, 
-        model, 
+        model: nn.Module, 
         col_user: str=DEFAULT_USER_COL,
         col_item: str=DEFAULT_ITEM_COL,
         col_label: str=DEFAULT_LABEL_COL,
         col_prediction: str=DEFAULT_PREDICTION_COL,
     ):
-        # device setting
         DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
         self.device = torch.device(DEVICE)
 
@@ -31,9 +32,10 @@ class PerformancePredictor:
         self.col_label= col_label
         self.col_prediction = col_prediction
 
-    def predict(
+    @torch.no_grad()
+    def __call__(
         self,
-        dataloader: torch.utils.data.dataloader.DataLoader,
+        tst_loader: CustomizedDataLoader,
     ):
         # evaluation
         self.model.eval()
@@ -46,7 +48,7 @@ class PerformancePredictor:
         computing_cost_list = []
 
         iter_obj = tqdm(
-            iterable=dataloader, 
+            iterable=tst_loader, 
             desc=f"TST",
         )
 
