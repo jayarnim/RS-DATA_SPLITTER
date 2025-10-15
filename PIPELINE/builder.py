@@ -87,10 +87,10 @@ class Builder:
         Returns:
             loaders (dict): `{"trn": dataloader, "val": dataloader, "tst": dataloader, "loo": dataloader}`
                 A dictionary containing the constructed DataLoaders.
-            user_item_matrix (torch.Tensor): 
+            interactions (torch.Tensor): 
                 User-item interaction matrix derived from the full dataset.
                 (shape: [U+1,I+1])
-            hist (dict): `{"user": torch.Tensor, "item": torch.Tensor}`
+            histories (dict): `{"user": torch.Tensor, "item": torch.Tensor}`
                 Aggregated user and item interaction histories.
                 The selection strategy is controlled by `hist_selector_type`.
         """
@@ -121,26 +121,26 @@ class Builder:
         kwargs = dict(
             data=splits["trn"],
         )
-        user_item_matrix = self._user_item_matrix_generator(**kwargs)
+        interactions = self._interactions_generator(**kwargs)
 
         # generate histories
-        hist = {}
+        histories = {}
 
         kwargs = dict(
-            interactions=user_item_matrix,
+            interactions=interactions,
             hist_selector_type=hist_selector_type,
             max_hist=max_hist,
         )
-        hist["user"] = self._histories_generator(**kwargs)
+        histories["user"] = self._histories_generator(**kwargs)
 
         kwargs = dict(
-            interactions=user_item_matrix.T,
+            interactions=interactions.T,
             hist_selector_type=hist_selector_type,
             max_hist=max_hist,
         )
-        hist["item"] = self._histories_generator(**kwargs)
+        histories["item"] = self._histories_generator(**kwargs)
 
-        return loaders, user_item_matrix, hist
+        return loaders, interactions, histories
 
     def _dataloader_generator(self, splits, neg_per_pos_ratio, batch_size, shuffle):
         loaders = {}
@@ -166,7 +166,7 @@ class Builder:
         
         return loaders
 
-    def _user_item_matrix_generator(self, data):
+    def _interactions_generator(self, data):
         kwargs = dict(
             size=(self.n_users + 1, self.n_items + 1),
             dtype=torch.int32,
