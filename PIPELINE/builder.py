@@ -14,7 +14,7 @@ from .dataloader import pointwise, pairwise, listwise
 from . import hist_selector
 
 
-class DataBuilder:
+class Builder:
     def __init__(
         self, 
         origin: pd.DataFrame,

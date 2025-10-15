@@ -10,9 +10,9 @@ The `PIPELINE` is a package designed for latent factor model experiments in reco
 
 It divides a binary implicit feedback dataset into `trn`, `val` and `tst` in a user-level hierarchical manner, and constructs corresponding PyTorch DataLoaders for each split. Additionally, to monitor the early-stopping criterion based on evaluation metrics, it provides a `leave-one-out` dataset, which contains a single positive feedback per user.
 
-The top-level module is `builder`. Through the class `DataBuilder`, users can perform dataset splitting and generate PyTorch DataLoaders with negative sampling applied to each split. The split ratios and negative sampling ratios can be configured via the `__call__` method parameters `trn_val_tst_ratio` and `neg_per_pos_ratio`, respectively.
+The top-level module is `builder`. Through the class `Builder`, users can perform dataset splitting and generate PyTorch DataLoaders with negative sampling applied to each split. The split ratios and negative sampling ratios can be configured via the `__call__` method parameters `trn_val_tst_ratio` and `neg_per_pos_ratio`, respectively.
 
-Depending on the learning strategy, the DataLoader provides various observation pairs. This can be specified through the `__init__` parameter `learning_type` of the `DataBuilder` class. However, note that while `pairwise` and `listwise` learning types can be used for `trn` and `val` dataloaders, the `tst` and `loo` dataloaders are strictly `pointwise`, since they are intended for evaluation, not training.
+Depending on the learning strategy, the DataLoader provides various observation pairs. This can be specified through the `__init__` parameter `learning_type` of the `Builder` class. However, note that while `pairwise` and `listwise` learning types can be used for `trn` and `val` dataloaders, the `tst` and `loo` dataloaders are strictly `pointwise`, since they are intended for evaluation, not training.
 
 - `pointwise`: (user idx, item idx, label)
 - `pairwise`: (user idx, pos idx, neg idx)
