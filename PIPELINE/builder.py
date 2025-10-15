@@ -14,7 +14,7 @@ from .dataloader import pointwise, pairwise, listwise
 from . import hist_selector
 
 
-class DataSplitter:
+class DataBuilder:
     def __init__(
         self, 
         origin: pd.DataFrame,
@@ -65,7 +65,7 @@ class DataSplitter:
         seed: int=SEED,
     ):
         """
-        Splits the input DataFrame into train / validation / test / LOO subsets,
+        Splits the input DataFrame into TRN / VAL / TST / LOO subsets,
         constructs corresponding DataLoaders,
         and generates historical context information for users and items.
 
