@@ -12,14 +12,11 @@ It divides a binary implicit feedback dataset into `trn`, `val` and `tst` in a u
 
 The top-level module is `data_splitter`. Through the class `DataSplitter`, users can perform dataset splitting and generate PyTorch DataLoaders with negative sampling applied to each split. The split ratios and negative sampling ratios can be configured via the `__call__` method parameters `trn_val_tst_ratio` and `neg_per_pos_ratio`, respectively.
 
-Depending on the learning strategy, the DataLoader provides various observation pairs.
-This can be specified through the `__init__` parameter `learning_type` of the `DataSplitter` class.
+Depending on the learning strategy, the DataLoader provides various observation pairs. This can be specified through the `__init__` parameter `learning_type` of the `DataSplitter` class. However, note that while `pairwise` and `listwise` learning types can be used for `trn` and `val` dataloaders, the `tst` and `loo` dataloaders are strictly `pointwise`, since they are intended for evaluation, not training.
 
 - `pointwise`: (user idx, item idx, label)
 - `pairwise`: (user idx, pos idx, neg idx)
 - `listwise`: (user idx, pos idx, neg indices)
-
-However, note that while `pairwise` and `listwise` learning types can be used for `trn` and `val` dataloaders, the `tst` and `loo` dataloaders are strictly `pointwise`, since they are intended for evaluation, not training.
 
 ### user-item interaction matrix
 
