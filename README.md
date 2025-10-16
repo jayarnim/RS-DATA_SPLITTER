@@ -1,16 +1,16 @@
-# Training Module for Latent Factor Models with Implicit Feedback
+# Experiment Library for Latent Factor Models with Implicit Feedback
 
 - created by @jayarnim
 
 ## pipeline
 
-The `PIPELINE` is a package designed for latent factor model experiments in recommender systems, providing various forms of processed implicit feedback datasets.
+The `PIPELINE` is a package designed for latent factor model experiments in recommender systems, providing various forms of processed implicit feedback datasets. The top-level module is `builder`. `dataloader`, `hist_selector`, etc. are packages that assist the builder.
 
 ### loaders
 
-It divides a binary implicit feedback dataset into `trn`, `val` and `tst` in a user-level hierarchical manner, and constructs corresponding PyTorch DataLoaders for each split. Additionally, to monitor the early-stopping criterion based on evaluation metrics, it provides a `leave-one-out` dataset, which contains a single positive feedback per user.
+class `Builder` in module `builder` divides a binary implicit feedback dataset into `trn`, `val` and `tst` in a user-level hierarchical manner, and constructs corresponding PyTorch DataLoaders for each split. Additionally, to monitor the early-stopping criterion based on evaluation metrics, it provides a `leave-one-out` dataset, which contains a single positive feedback per user.
 
-The top-level module is `builder`. Through the class `Builder`, users can perform dataset splitting and generate PyTorch DataLoaders with negative sampling applied to each split. The split ratios and negative sampling ratios can be configured via the `__call__` method parameters `trn_val_tst_ratio` and `neg_per_pos_ratio`, respectively.
+Through the class `Builder`, users can perform dataset splitting and generate PyTorch DataLoaders with negative sampling applied to each split. The split ratios and negative sampling ratios can be configured via the `__call__` method parameters `trn_val_tst_ratio` and `neg_per_pos_ratio`, respectively.
 
 Depending on the learning strategy, the DataLoader provides various observation pairs. This can be specified through the `__init__` parameter `learning_type` of the `Builder` class. However, note that while `pairwise` and `listwise` learning types can be used for `trn` and `val` dataloaders, the `tst` and `loo` dataloaders are strictly `pointwise`, since they are intended for evaluation, not training.
 
@@ -35,9 +35,9 @@ Currently supported options for `hist_selector_type` (`__call__` parameter) are:
 - `default`: use the full history
 - `tfidf`: select history items by TF-IDF score (treating a user’s history as a document and items as words)
 
-## experiment
+## trainer
 
-The `EXPERIMENT` is a package designed to train latent factor models and evaluate their ranking performance in recommender systems.
+The `TRAINER` is a package designed to train latent factor models and evaluate their ranking performance in recommender systems.
 
 The top-level module, `runner`, serves as the main controller for training. It takes as input the target model, along with two submodules — the `trainer`, which handles single-epoch mini-batch training, and the `monitor`, which tracks performance metrics to determine early-stopping points.
 
