@@ -51,4 +51,6 @@ The supported loss functions for each learning strategy are as follows:
 
 The `monitor` determines the early-stopping point based on performance evaluated using the `leave-one-out` dataset. The evaluation metric can be configured via the `metric_fn_type` parameter, and the currently supported metrics include: `hr`, `precision`, `recall`, `map`, and `ndcg`.
 
-The `evaluator`, independently executable with respect to the `runner`, assesses the model’s performance using the `tst` dataset. It computes `hr`, `precision`, `recall`, `map`, and `ndcg` scores for each top-k threshold. The top-k values can be specified by the user, with the default set being `[5, 10, 15, 20, 25, 50, 100]`.
+## evaluator
+
+The `EVALUATOR` module assesses model performance using the tst dataset. Its primary method, `.evaluator.evaluator`, is supported by `.evaluator.predictor` and `.evaluator.metrics`. The `predictor` component generates predictions from the `tst` dataloader, while the `metrics` component computes performance indicators including Hit Ratio (HR), Precision, Recall, Mean Average Precision (MAP), and Normalized Discounted Cumulative Gain (NDCG) for each top-k threshold. The top-k values can be user-defined, with the default set to [5, 10, 15, 20, 25, 50, 100].
